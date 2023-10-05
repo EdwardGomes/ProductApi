@@ -23,6 +23,7 @@ public class ProductController {
     @Autowired
     ProductRepository productRepository;
 
+    // endpoint to create a new product
     @PostMapping("/product")
     public ResponseEntity<ProductModel> saveProduct(@RequestBody @Valid ProductRecordDto productRecordDto) {
         var productModel = new ProductModel();
@@ -30,6 +31,7 @@ public class ProductController {
         return ResponseEntity.status(HttpStatus.CREATED).body(productRepository.save(productModel));
     }
 
+    // endpoint to list all products
     @GetMapping("/product")
     public ResponseEntity<List<ProductModel>> getAllProduct() {
         List<ProductModel> productsList = productRepository.findAll();
@@ -42,16 +44,19 @@ public class ProductController {
         return ResponseEntity.status(HttpStatus.OK).body(productsList);
     }
 
+    // endpoint to get one product by id
     @GetMapping("/product/{id}")
     public ResponseEntity<Object> GetOneProduct(@PathVariable(value = "id") UUID id) {
         Optional<ProductModel> product0 = productRepository.findById(id);
         if (product0.isEmpty()){
+            // Add hateoas link to list all products
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Product not found");
         }
         product0.get().add(linkTo(methodOn(ProductController.class).getAllProduct()).withRel("product_list"));
         return ResponseEntity.status(HttpStatus.OK).body(product0.get());
     }
 
+    // endpoint to update a product
     @PutMapping("/product/{id}")
     public ResponseEntity<Object> updateProduct(@PathVariable(value = "id") UUID id,
                                                 @RequestBody @Valid ProductRecordDto productRecordDto) {
@@ -67,6 +72,7 @@ public class ProductController {
         }
     }
 
+    // endpoint to delete a product
     @DeleteMapping("/product/{id}")
     public ResponseEntity<Object> deleteProduct(@PathVariable(value = "id") UUID id) {
         Optional<ProductModel> product0 = productRepository.findById(id);
